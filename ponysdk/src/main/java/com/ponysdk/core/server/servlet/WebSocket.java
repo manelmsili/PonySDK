@@ -23,13 +23,14 @@
 
 package com.ponysdk.core.server.servlet;
 
-import com.ponysdk.core.model.ClientToServerModel;
-import com.ponysdk.core.model.ServerToClientModel;
-import com.ponysdk.core.server.application.AbstractApplicationManager;
-import com.ponysdk.core.server.application.Application;
-import com.ponysdk.core.server.application.UIContext;
-import com.ponysdk.core.server.stm.TxnContext;
-import com.ponysdk.core.useragent.UserAgent;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
@@ -37,12 +38,13 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
+import com.ponysdk.core.model.ClientToServerModel;
+import com.ponysdk.core.model.ServerToClientModel;
+import com.ponysdk.core.server.application.AbstractApplicationManager;
+import com.ponysdk.core.server.application.Application;
+import com.ponysdk.core.server.application.UIContext;
+import com.ponysdk.core.server.stm.TxnContext;
+import com.ponysdk.core.useragent.UserAgent;
 
 public class WebSocket implements WebSocketListener, WebsocketEncoder {
 
@@ -64,8 +66,7 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
     private ByteBuffer buffer;
     private int lastUpdatedID = -1;
 
-    WebSocket(final ServletUpgradeRequest request, final WebsocketMonitor monitor, final BufferManager bufferManager,
-            final AbstractApplicationManager applicationManager) {
+    WebSocket(final ServletUpgradeRequest request, final WebsocketMonitor monitor, final BufferManager bufferManager, final AbstractApplicationManager applicationManager) {
         this.request = request;
         this.monitor = monitor;
         this.bufferManager = bufferManager;
@@ -74,22 +75,22 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
 
     @Override
     public void onWebSocketConnect(final Session session) {
-        if (log.isInfoEnabled()) log.info("WebSocket connected from {}, sessionID {}, userAgent {}", session.getRemoteAddress(),
-            request.getSession(), request.getHeader("User-Agent"));
+        if (log.isInfoEnabled())
+            log.info("WebSocket connected from {}, sessionID {}, userAgent {}", session.getRemoteAddress(), request.getSession(), request.getHeader("User-Agent"));
 
         this.session = session;
         this.context = new TxnContext(this);
 
         Application application = SessionManager.get().getApplication(request.getSession().getId());
         if (application == null) {
-            application = new Application(request.getSession(), applicationManager.getOptions(),
-                UserAgent.parseUserAgentString(request.getHeader("User-Agent")));
+            application = new Application(request.getSession(), applicationManager.getOptions(), UserAgent.parseUserAgentString(request.getHeader("User-Agent")));
             SessionManager.get().registerApplication(application);
         }
 
         context.setApplication(application);
 
-        if (log.isInfoEnabled()) log.info("Creating a new application, {}", application.toString());
+        if (log.isInfoEnabled())
+            log.info("Creating a new application, {}", application.toString());
         try {
             final UIContext uiContext = new UIContext(context);
             context.setUIContext(uiContext);
@@ -116,7 +117,8 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
     @Override
     public void onWebSocketClose(final int statusCode, final String reason) {
         log.info("WebSocket closed {}, reason : {}", NiceStatusCode.getMessage(statusCode), reason != null ? reason : "");
-        if (isLiving()) context.getUIContext().onDestroy();
+        if (isLiving())
+            context.getUIContext().onDestroy();
     }
 
     /**
@@ -126,12 +128,14 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
     public void onWebSocketText(final String text) {
         final UIContext uiContext = context.getUIContext();
         if (isLiving()) {
-            if (monitor != null) monitor.onMessageReceived(WebSocket.this, text);
+            if (monitor != null)
+                monitor.onMessageReceived(WebSocket.this, text);
             try {
                 uiContext.notifyMessageReceived();
 
                 if (ClientToServerModel.HEARTBEAT.toStringValue().equals(text)) {
-                    if (log.isDebugEnabled()) log.debug("Heartbeat received from terminal #" + uiContext.getID());
+                    if (log.isDebugEnabled())
+                        log.debug("Heartbeat received from terminal #" + uiContext.getID());
                 } else {
                     final JsonObject jsonObject = Json.createReader(new StringReader(text)).readObject();
                     if (jsonObject.containsKey(ClientToServerModel.PING_SERVER.toStringValue())) {
@@ -151,11 +155,9 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
                             }
                         });
                     } else if (jsonObject.containsKey(ClientToServerModel.INFO_MSG.toStringValue())) {
-                        log.info("Message from terminal #" + uiContext.getID() + " : "
-                                + jsonObject.getJsonString(ClientToServerModel.INFO_MSG.toStringValue()));
+                        log.info("Message from terminal #" + uiContext.getID() + " : " + jsonObject.getJsonString(ClientToServerModel.INFO_MSG.toStringValue()));
                     } else if (jsonObject.containsKey(ClientToServerModel.ERROR_MSG.toStringValue())) {
-                        log.error("Message from terminal #" + uiContext.getID() + " : "
-                                + jsonObject.getJsonString(ClientToServerModel.ERROR_MSG.toStringValue()));
+                        log.error("Message from terminal #" + uiContext.getID() + " : " + jsonObject.getJsonString(ClientToServerModel.ERROR_MSG.toStringValue()));
                     } else {
                         log.error("Unknow message from terminal #" + uiContext.getID() + " : " + text);
                     }
@@ -163,10 +165,12 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
             } catch (final Throwable e) {
                 log.error("Cannot process message from terminal  #" + uiContext.getID() + " : {}", text, e);
             } finally {
-                if (monitor != null) monitor.onMessageProcessed(WebSocket.this);
+                if (monitor != null)
+                    monitor.onMessageProcessed(WebSocket.this);
             }
         } else {
-            if (log.isInfoEnabled()) log.info("UI Context is destroyed, message dropped from terminal : " + text);
+            if (log.isInfoEnabled())
+                log.info("UI Context is destroyed, message dropped from terminal : " + text);
         }
     }
 
@@ -197,11 +201,13 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
     public void flush(final ByteBuffer buffer) {
         if (isLiving() && isSessionOpen()) {
             if (buffer.position() != 0) {
-                if (monitor != null) monitor.onBeforeFlush(WebSocket.this, buffer.position());
+                if (monitor != null)
+                    monitor.onBeforeFlush(WebSocket.this, buffer.position());
                 try {
                     bufferManager.send(session.getRemote(), buffer);
                 } finally {
-                    if (monitor != null) monitor.onAfterFlush(WebSocket.this);
+                    if (monitor != null)
+                        monitor.onAfterFlush(WebSocket.this);
                 }
 
                 return;
@@ -271,13 +277,16 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
 
     @Override
     public void beginObject() {
-        if (buffer == null) buffer = getBuffer();
+        if (buffer == null)
+            buffer = getBuffer();
     }
 
     @Override
     public void endObject() {
-        if (buffer == null) return;
-        if (buffer.position() >= 4096) flush();
+        if (buffer == null)
+            return;
+        if (buffer.position() >= 4096)
+            flush();
     }
 
     @Override
@@ -291,49 +300,49 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
             } else {
                 lastUpdatedID = newUpdatedID;
             }
-        } else if (ServerToClientModel.TYPE_ADD.equals(model) || ServerToClientModel.TYPE_ADD_HANDLER.equals(model)
-                || ServerToClientModel.TYPE_CLOSE.equals(model) || ServerToClientModel.TYPE_CREATE.equals(model)
-                || ServerToClientModel.TYPE_GC.equals(model) || ServerToClientModel.TYPE_HISTORY.equals(model)
-                || ServerToClientModel.TYPE_REMOVE.equals(model) || ServerToClientModel.TYPE_REMOVE_HANDLER.equals(model)
-                || ServerToClientModel.WINDOW_ID.equals(model)) {
+        } else if (ServerToClientModel.TYPE_ADD.equals(model) || ServerToClientModel.TYPE_ADD_HANDLER.equals(model) || ServerToClientModel.TYPE_CLOSE.equals(model)
+                || ServerToClientModel.TYPE_CREATE.equals(model) || ServerToClientModel.TYPE_GC.equals(model) || ServerToClientModel.TYPE_HISTORY.equals(model)
+                || ServerToClientModel.TYPE_REMOVE.equals(model) || ServerToClientModel.TYPE_REMOVE_HANDLER.equals(model) || ServerToClientModel.WINDOW_ID.equals(model)
+                || ServerToClientModel.FRAME_ID.equals(model)) {
             lastUpdatedID = -1;
         }
 
         switch (model.getTypeModel()) {
-            case NULL:
-                encode(buffer, model);
-                break;
-            case BOOLEAN:
-                encode(buffer, model, (boolean) value);
-                break;
-            case BYTE:
-                encode(buffer, model, (byte) value);
-                break;
-            case SHORT:
-                encode(buffer, model, (short) value);
-                break;
-            case INTEGER:
-                encode(buffer, model, (int) value);
-                break;
-            case LONG:
-                encode(buffer, model, (long) value);
-                break;
-            case DOUBLE:
-                encode(buffer, model, (double) value);
-                break;
-            case STRING:
-                encode(buffer, model, (String) value);
-                break;
-            case JSON_OBJECT:
-                encode(buffer, model, (JsonObject) value);
-                break;
-            default:
-                break;
+        case NULL:
+            encode(buffer, model);
+            break;
+        case BOOLEAN:
+            encode(buffer, model, (boolean) value);
+            break;
+        case BYTE:
+            encode(buffer, model, (byte) value);
+            break;
+        case SHORT:
+            encode(buffer, model, (short) value);
+            break;
+        case INTEGER:
+            encode(buffer, model, (int) value);
+            break;
+        case LONG:
+            encode(buffer, model, (long) value);
+            break;
+        case DOUBLE:
+            encode(buffer, model, (double) value);
+            break;
+        case STRING:
+            encode(buffer, model, (String) value);
+            break;
+        case JSON_OBJECT:
+            encode(buffer, model, (JsonObject) value);
+            break;
+        default:
+            break;
         }
     }
 
     private static void encode(final ByteBuffer buffer, final ServerToClientModel model) {
-        if (log.isDebugEnabled()) log.debug("Writing in the buffer : " + model + " (position : " + buffer.position() + ")");
+        if (log.isDebugEnabled())
+            log.debug("Writing in the buffer : " + model + " (position : " + buffer.position() + ")");
         buffer.putShort(model.getValue());
     }
 
@@ -374,8 +383,8 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
     }
 
     private static void encode(final ByteBuffer buffer, final ServerToClientModel model, final String value) {
-        if (log.isDebugEnabled()) log.debug("Writing in the buffer : " + model + " => " + value + " (size : "
-                + (value != null ? value.length() : 0) + ")" + " (position : " + buffer.position() + ")");
+        if (log.isDebugEnabled())
+            log.debug("Writing in the buffer : " + model + " => " + value + " (size : " + (value != null ? value.length() : 0) + ")" + " (position : " + buffer.position() + ")");
         buffer.putShort(model.getValue());
 
         try {

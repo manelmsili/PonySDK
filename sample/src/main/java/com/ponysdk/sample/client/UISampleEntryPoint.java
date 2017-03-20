@@ -39,6 +39,7 @@ import com.ponysdk.core.ui.basic.PCookies;
 import com.ponysdk.core.ui.basic.PDateBox;
 import com.ponysdk.core.ui.basic.PDockLayoutPanel;
 import com.ponysdk.core.ui.basic.PFlowPanel;
+import com.ponysdk.core.ui.basic.PFrame;
 import com.ponysdk.core.ui.basic.PLabel;
 import com.ponysdk.core.ui.basic.PListBox;
 import com.ponysdk.core.ui.basic.PMenuBar;
@@ -85,14 +86,20 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
     public void start(final UIContext uiContext) {
         uiContext.setClientDataOutput((object, instruction) -> System.err.println(object + " : " + instruction));
 
-        mainLabel = Element.newPLabel("Can be modified by anybody");
-        PWindow.getMain().add(mainLabel);
+        PFrame frame = Element.newPFrame("http://localhost:8081/sample/");
+        PWindow.getMain().add(frame);
+
+        frame.add(Element.newPLabel("Inside the frame"));
+
+        if (true)
+            return;
+
+        // mainLabel = Element.newPLabel("Can be modified by anybody");
+        // PWindow.getMain().add(mainLabel);
 
         testPAddon();
 
         createWindow().open();
-
-        if (true) return;
 
         testNewEvent();
 
@@ -165,7 +172,10 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         boxContainer.add(Element.newPPopupPanel());
         boxContainer.add(Element.newPPopupPanel(true));
 
-        boxContainer.add(Element.newPPushButton(Element.newPImage())); // FIXME Test with image
+        boxContainer.add(Element.newPPushButton(Element.newPImage())); // FIXME
+                                                                       // Test
+                                                                       // with
+                                                                       // image
 
         boxContainer.add(Element.newPRadioButton("RadioLabel"));
         boxContainer.add(Element.newPRadioButton("RadioLabel"));
@@ -263,26 +273,23 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         PWindow.getMain().add(grid);
 
         /**
-         * PScheduler.scheduleAtFixedRate(() -> {
-         * grid.setData((int) (Math.random() * 50));
-         * grid.removeData((int) (Math.random() * 50));
-         * grid.removeColumn(grid.getColumns().get((int) (Math.random() * grid.getColumns().size() -
-         * 1)));
+         * PScheduler.scheduleAtFixedRate(() -> { grid.setData((int)
+         * (Math.random() * 50)); grid.removeData((int) (Math.random() * 50));
+         * grid.removeColumn(grid.getColumns().get((int) (Math.random() *
+         * grid.getColumns().size() - 1)));
          *
          * final ColumnDescriptor<Integer> column = new ColumnDescriptor<>();
          * final PAnchor anchor = new PAnchor("Header " + id.incrementAndGet());
          * anchor.addClickHandler(click -> grid.removeColumn(column));
-         * column.setCellRenderer(new PLabelCellRenderer<>(from -> (int) (Math.random() * 1000) +
-         * ""));
-         * column.setHeaderRenderer(() -> anchor);
-         * grid.addColumnDescriptor(column);
-         * }, Duration.ofMillis(2000));
+         * column.setCellRenderer(new PLabelCellRenderer<>(from -> (int)
+         * (Math.random() * 1000) + "")); column.setHeaderRenderer(() ->
+         * anchor); grid.addColumnDescriptor(column); },
+         * Duration.ofMillis(2000));
          **/
     }
 
     private void testNewEvent() {
-        final EventHandler<PClickEvent> handler = UIContext.getNewEventBus().subscribe(PClickEvent.class,
-            event -> System.err.println("B " + event));
+        final EventHandler<PClickEvent> handler = UIContext.getNewEventBus().subscribe(PClickEvent.class, event -> System.err.println("B " + event));
         UIContext.getNewEventBus().post(new PClickEvent(this));
         UIContext.getNewEventBus().post(new PClickEvent(this));
         UIContext.getNewEventBus().unsubscribe(handler);
@@ -375,17 +382,19 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         final boolean delegatorMode = true;
 
         if (delegatorMode) {
-            //            final UIDelegator<String> delegator = PScheduler.delegate(new Callback<String>() {
+            // final UIDelegator<String> delegator = PScheduler.delegate(new
+            // Callback<String>() {
             //
-            //                @Override
-            //                public void onSuccess(final String result) {
-            //                    p.setText(result);
-            //                }
+            // @Override
+            // public void onSuccess(final String result) {
+            // p.setText(result);
+            // }
             //
-            //                @Override
-            //                public void onError(final String result, final Exception exception) {
-            //                }
-            //            });
+            // @Override
+            // public void onError(final String result, final Exception
+            // exception) {
+            // }
+            // });
 
             new Thread() {
 
@@ -397,7 +406,7 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    //                    delegator.onSuccess("Test");
+                    // delegator.onSuccess("Test");
                 }
             }.start();
 
@@ -408,7 +417,7 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
     private PWindow createWindow() {
         final PWindow w = Element.newPWindow("Window 1", "resizable=yes,location=0,status=0,scrollbars=0");
 
-        //PScript.execute(w, "alert('coucou Window1');");
+        // PScript.execute(w, "alert('coucou Window1');");
         PScript.execute(w, "console.log('coucou Window1');");
 
         final PFlowPanel windowContainer = Element.newPFlowPanel();
@@ -432,8 +441,7 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         final PButton button1 = Element.newPButton("Open linked window");
         windowContainer.add(button1);
         button1.addClickHandler(event -> {
-            final PWindow newPWindow = Element.newPWindow(w, "Sub Window 1 " + i.incrementAndGet(),
-                "resizable=yes,location=0,status=0,scrollbars=0");
+            final PWindow newPWindow = Element.newPWindow(w, "Sub Window 1 " + i.incrementAndGet(), "resizable=yes,location=0,status=0,scrollbars=0");
             newPWindow.add(Element.newPLabel("Sub window"));
             newPWindow.open();
         });
@@ -441,8 +449,7 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         final PButton button2 = Element.newPButton("Open not linked window");
         windowContainer.add(button2);
         button2.addClickHandler(event -> {
-            final PWindow newPWindow = Element.newPWindow("Not Sub Window 1 " + i.incrementAndGet(),
-                "resizable=yes,location=0,status=0,scrollbars=0");
+            final PWindow newPWindow = Element.newPWindow("Not Sub Window 1 " + i.incrementAndGet(), "resizable=yes,location=0,status=0,scrollbars=0");
             newPWindow.add(Element.newPLabel("Sub window"));
             newPWindow.open();
         });

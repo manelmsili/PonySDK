@@ -23,14 +23,6 @@
 
 package com.ponysdk.core.server.application;
 
-import com.ponysdk.core.model.ServerToClientModel;
-import com.ponysdk.core.server.stm.Txn;
-import com.ponysdk.core.ui.basic.PObject;
-import com.ponysdk.core.ui.basic.PWindow;
-import com.ponysdk.core.writer.ModelWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -39,6 +31,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ponysdk.core.model.ServerToClientModel;
+import com.ponysdk.core.server.stm.Txn;
+import com.ponysdk.core.ui.basic.PObject;
+import com.ponysdk.core.ui.basic.PWindow;
+import com.ponysdk.core.writer.ModelWriter;
+
 public class PObjectWeakHashMap implements Map<Integer, PObject> {
 
     private final Logger log = LoggerFactory.getLogger(PObjectWeakHashMap.class);
@@ -46,6 +47,7 @@ public class PObjectWeakHashMap implements Map<Integer, PObject> {
     private final ReferenceQueue<PObject> queue = new ReferenceQueue<>();
     private final Map<Integer, WeakReference<PObject>> referenceByObjectID = new ConcurrentHashMap<>();
     private final Map<Integer, Integer> windowIDbyObjectID = new ConcurrentHashMap<>();
+    private final Map<Integer, Integer> frameIDbyObjectID = new ConcurrentHashMap<>();
     private final Map<WeakReference<PObject>, Integer> objectIDByReferences = new ConcurrentHashMap<>();
 
     @Override
@@ -76,7 +78,8 @@ public class PObjectWeakHashMap implements Map<Integer, PObject> {
     public PObject get(final Object key) {
         expungeStaleEntries();
         final Reference<PObject> value = referenceByObjectID.get(key);
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return value.get();
     }
 
@@ -86,9 +89,15 @@ public class PObjectWeakHashMap implements Map<Integer, PObject> {
         final WeakReference<PObject> weakReference = new WeakReference<>(value, queue);
         referenceByObjectID.put(objectID, weakReference);
         windowIDbyObjectID.put(objectID, value.getWindow().getID());
+
+        if (value.getFrame() != null) {
+            frameIDbyObjectID.put(objectID, value.getFrame().getID());
+        }
+
         objectIDByReferences.put(weakReference, objectID);
 
-        if (log.isDebugEnabled()) log.debug("Registering object: " + value);
+        if (log.isDebugEnabled())
+            log.debug("Registering object: " + value);
 
         return value;
     }
@@ -98,8 +107,10 @@ public class PObjectWeakHashMap implements Map<Integer, PObject> {
         expungeStaleEntries();
         final Reference<PObject> reference = referenceByObjectID.remove(key);
 
-        if (log.isDebugEnabled()) log.debug("Removing reference on object #" + key);
-        if (reference == null) return null;
+        if (log.isDebugEnabled())
+            log.debug("Removing reference on object #" + key);
+        if (reference == null)
+            return null;
 
         objectIDByReferences.remove(reference);
 
@@ -139,12 +150,17 @@ public class PObjectWeakHashMap implements Map<Integer, PObject> {
         while ((reference = queue.poll()) != null) {
             final Integer objectID = objectIDByReferences.remove(reference);
             final Integer windowID = windowIDbyObjectID.remove(objectID);
+            final Integer frameID = frameIDbyObjectID.remove(objectID);
             referenceByObjectID.remove(objectID);
-            if (log.isDebugEnabled()) log.debug("Removing reference on object #{}", objectID);
+            if (log.isDebugEnabled())
+                log.debug("Removing reference on object #{}", objectID);
 
             final ModelWriter writer = Txn.getWriter();
             writer.beginObject();
-            if (windowID != PWindow.getMain().getID()) writer.writeModel(ServerToClientModel.WINDOW_ID, windowID);
+            if (windowID != PWindow.getMain().getID())
+                writer.writeModel(ServerToClientModel.WINDOW_ID, windowID);
+            if (frameID != null)
+                writer.writeModel(ServerToClientModel.FRAME_ID, frameID);
             writer.writeModel(ServerToClientModel.TYPE_GC, objectID);
             writer.endObject();
         }

@@ -77,10 +77,12 @@ public class WebSocketClient implements MessageSender {
         }
 
         webSocket.setOnopen(event -> {
-            if (log.isLoggable(Level.INFO)) log.info("WebSoket connected");
+            if (log.isLoggable(Level.INFO))
+                log.info("WebSoket connected");
 
             Scheduler.get().scheduleFixedDelay(() -> {
-                if (log.isLoggable(Level.FINE)) log.log(Level.FINE, "Heart beat sent");
+                if (log.isLoggable(Level.FINE))
+                    log.log(Level.FINE, "Heart beat sent");
                 send(ClientToServerModel.HEARTBEAT.toStringValue());
                 return true;
             }, 1000);
@@ -88,15 +90,18 @@ public class WebSocketClient implements MessageSender {
         webSocket.setOnclose(event -> {
             if (event instanceof CloseEvent) {
                 final CloseEvent closeEvent = (CloseEvent) event;
-                if (log.isLoggable(Level.INFO)) log.info("WebSoket disconnected : " + closeEvent.getCode());
+                if (log.isLoggable(Level.INFO))
+                    log.info("WebSoket disconnected : " + closeEvent.getCode());
                 uiBuilder.onCommunicationError(new StatusCodeException(closeEvent.getCode(), closeEvent.getReason()));
             } else {
-                if (log.isLoggable(Level.INFO)) log.info("WebSoket disconnected");
+                if (log.isLoggable(Level.INFO))
+                    log.info("WebSoket disconnected");
                 uiBuilder.onCommunicationError(new Exception("Websocket connection closed"));
             }
         });
         webSocket.setOnerror(event -> {
-            if (log.isLoggable(Level.INFO)) log.info("WebSoket error");
+            if (log.isLoggable(Level.INFO))
+                log.info("WebSoket error");
             uiBuilder.onCommunicationError(new Exception("Websocket error"));
         });
         webSocket.setOnmessage(event -> messageReader.read((MessageEvent) event));
@@ -115,12 +120,14 @@ public class WebSocketClient implements MessageSender {
             final BinaryModel type = readerBuffer.readBinaryModel();
 
             if (type.getModel() == ServerToClientModel.PING_SERVER) {
-                if (log.isLoggable(Level.FINE)) log.log(Level.FINE, "Ping received");
+                if (log.isLoggable(Level.FINE))
+                    log.log(Level.FINE, "Ping received");
                 final PTInstruction requestData = new PTInstruction();
                 requestData.put(ClientToServerModel.PING_SERVER, type.getLongValue());
                 send(requestData.toString());
             } else if (type.getModel() == ServerToClientModel.HEARTBEAT) {
-                if (log.isLoggable(Level.FINE)) log.log(Level.FINE, "Heart beat received");
+                if (log.isLoggable(Level.FINE))
+                    log.log(Level.FINE, "Heart beat received");
             } else if (type.getModel() == ServerToClientModel.UI_CONTEXT_ID) {
                 PonySDK.get().setContextId(type.getIntValue());
                 uiBuilder.init(new WebSocketRequestBuilder(WebSocketClient.this));

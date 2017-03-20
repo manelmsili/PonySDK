@@ -37,7 +37,7 @@ public class BufferManager {
 
     private static final Logger log = LoggerFactory.getLogger(BufferManager.class);
 
-    private static final int BUFFERS_COUNT = 500;
+    private static final int BUFFERS_COUNT = 200;
     private static final int BUFFER_SIZE = 1024000;
 
     private final BlockingQueue<ByteBuffer> bufferPool = new LinkedBlockingQueue<>(BUFFERS_COUNT);
@@ -59,7 +59,8 @@ public class BufferManager {
             log.warn("No more available buffer, max allocation reached ({}), waiting an available one", BUFFERS_COUNT);
             try {
                 buffer = bufferPool.poll(25, TimeUnit.SECONDS);
-                if (buffer == null) throw new IllegalStateException("No more buffer available");
+                if (buffer == null)
+                    throw new IllegalStateException("No more buffer available");
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException(e);
@@ -71,8 +72,7 @@ public class BufferManager {
             return buffer;
         } else {
             // Discard this buffer, let it be gc
-            log.warn("A zombie buffer has been detected, it will be eliminated",
-                new IllegalStateException("Zombie buffer detected : " + buffer.toString()));
+            log.warn("A zombie buffer has been detected, it will be eliminated", new IllegalStateException("Zombie buffer detected : " + buffer.toString()));
             return allocate();
         }
     }
@@ -95,7 +95,8 @@ public class BufferManager {
     }
 
     public void release(final ByteBuffer buffer) {
-        if (bufferPool.contains(buffer)) return;
+        if (bufferPool.contains(buffer))
+            return;
         buffer.clear();
         try {
             bufferPool.put(buffer);

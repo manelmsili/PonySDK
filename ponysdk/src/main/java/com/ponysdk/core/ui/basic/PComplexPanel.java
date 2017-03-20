@@ -23,10 +23,10 @@
 
 package com.ponysdk.core.ui.basic;
 
+import java.util.Iterator;
+
 import com.ponysdk.core.model.ServerToClientModel;
 import com.ponysdk.core.ui.model.ServerBinaryModel;
-
-import java.util.Iterator;
 
 /**
  * Abstract base class for panels that can contain multiple child widgets.
@@ -51,8 +51,7 @@ public abstract class PComplexPanel extends PPanel {
             init();
             return true;
         } else if (this.window != window) {
-            throw new IllegalAccessError(
-                "Widget already attached to an other window, current window : #" + this.window + ", new window : #" + window);
+            throw new IllegalAccessError("Widget already attached to an other window, current window : #" + this.window + ", new window : #" + window);
         }
 
         return false;
@@ -66,15 +65,15 @@ public abstract class PComplexPanel extends PPanel {
             child.removeFromParent();
             children.add(child);
             adopt(child);
-            if (isInitialized()) child.attach(window);
+            if (isInitialized()) {
+                child.attach(window);
+            }
             child.saveAdd(child.getID(), ID);
         } else {
             if (initialized) {
-                throw new IllegalAccessError(
-                    "Can't attach widget " + child + " to window #" + window + " because it's already attached to window #" + child);
+                throw new IllegalAccessError("Can't attach widget " + child + " to window #" + window + " because it's already attached to window #" + child);
             } else {
-                throw new IllegalAccessError("Can't only attach widget " + child + " to window #" + child.getWindow()
-                        + ". Need to attach the new parent to the same window before");
+                throw new IllegalAccessError("Can't only attach widget " + child + " to window #" + child.getWindow() + ". Need to attach the new parent to the same window before");
             }
         }
     }
@@ -87,12 +86,14 @@ public abstract class PComplexPanel extends PPanel {
 
             children.insert(child, beforeIndex);
             adopt(child);
-            if (isInitialized()) child.attach(window);
-            if (children.size() - 1 == beforeIndex) child.saveAdd(child.getID(), ID);
-            else child.saveAdd(child.getID(), ID, new ServerBinaryModel(ServerToClientModel.INDEX, beforeIndex));
+            if (isInitialized())
+                child.attach(window);
+            if (children.size() - 1 == beforeIndex)
+                child.saveAdd(child.getID(), ID);
+            else
+                child.saveAdd(child.getID(), ID, new ServerBinaryModel(ServerToClientModel.INDEX, beforeIndex));
         } else {
-            throw new IllegalAccessError("Widget " + child + " already attached to an other window, current window : "
-                    + child.getWindow() + ", new window : " + window);
+            throw new IllegalAccessError("Widget " + child + " already attached to an other window, current window : " + child.getWindow() + ", new window : " + window);
         }
     }
 
@@ -113,7 +114,8 @@ public abstract class PComplexPanel extends PPanel {
 
     protected PWidget getChild(final long objectID) {
         for (final PWidget w : children) {
-            if (w.getID() == objectID) return w;
+            if (w.getID() == objectID)
+                return w;
         }
         return null;
     }
@@ -141,7 +143,8 @@ public abstract class PComplexPanel extends PPanel {
     }
 
     void assertNotMe(final PWidget widget) {
-        if (widget == this) throw new IllegalStateException("Cannot insert widget to itself");
+        if (widget == this)
+            throw new IllegalStateException("Cannot insert widget to itself");
     }
 
 }
