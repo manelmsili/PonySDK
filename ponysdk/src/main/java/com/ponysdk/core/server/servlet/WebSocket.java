@@ -61,7 +61,7 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
     private TxnContext context;
     private Session session;
 
-    WebSocket(final ServletUpgradeRequest request, final WebsocketMonitor monitor,
+    public WebSocket(final ServletUpgradeRequest request, final WebsocketMonitor monitor,
             final AbstractApplicationManager applicationManager) {
         this.request = request;
         this.monitor = monitor;
@@ -137,7 +137,6 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
             if (monitor != null) monitor.onMessageReceived(WebSocket.this, text);
             try {
                 uiContext.notifyMessageReceived();
-
                 if (ClientToServerModel.HEARTBEAT.toStringValue().equals(text)) {
                     if (log.isDebugEnabled()) log.debug("Heartbeat received from terminal #{}", uiContext.getID());
                 } else {

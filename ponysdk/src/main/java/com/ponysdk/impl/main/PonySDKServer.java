@@ -49,13 +49,14 @@ import com.ponysdk.core.server.servlet.BootstrapServlet;
 import com.ponysdk.core.server.servlet.ServletContextFilter;
 import com.ponysdk.core.server.servlet.StreamServiceServlet;
 import com.ponysdk.core.server.servlet.WebSocketServlet;
+import com.ponysdk.core.ui.WebSocketServletChat;
 
 public class PonySDKServer {
 
     public static final String MAPPING_BOOTSTRAP = "/*";
     public static final String MAPPING_WS = "/" + MappingPath.WEBSOCKET + "/*";
     public static final String MAPPING_STREAM = "/" + MappingPath.STREAM;
-
+    public static final String MAPPING_WS_CHAT = "/chat/*";
     private static final Logger log = LoggerFactory.getLogger(PonySDKServer.class);
 
     protected final Server server;
@@ -112,6 +113,7 @@ public class PonySDKServer {
         context.addServlet(new ServletHolder(createBootstrapServlet()), MAPPING_BOOTSTRAP);
         context.addServlet(new ServletHolder(createStreamServiceServlet()), MAPPING_STREAM);
         context.addServlet(new ServletHolder(createWebSocketServlet()), MAPPING_WS);
+        context.addServlet(new ServletHolder(createWebSocketServletChat()), MAPPING_WS_CHAT);
 
         final ServletContextFilter servletContextFilter = new ServletContextFilter();
         context.addFilter(new FilterHolder(servletContextFilter), MAPPING_BOOTSTRAP, EnumSet.of(DispatcherType.REQUEST));
@@ -121,6 +123,10 @@ public class PonySDKServer {
         sessionHandler.addEventListener(applicationLoader);
 
         return context;
+    }
+
+    private WebSocketServletChat createWebSocketServletChat() {
+        return new WebSocketServletChat();
     }
 
     protected ServerConnector createHttpConnector() {

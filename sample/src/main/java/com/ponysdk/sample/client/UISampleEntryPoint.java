@@ -53,6 +53,7 @@ import com.ponysdk.core.ui.basic.PTabLayoutPanel;
 import com.ponysdk.core.ui.basic.PTextBox;
 import com.ponysdk.core.ui.basic.PTree;
 import com.ponysdk.core.ui.basic.PTreeItem;
+import com.ponysdk.core.ui.basic.PWebSocket;
 import com.ponysdk.core.ui.basic.PWidget;
 import com.ponysdk.core.ui.basic.PWindow;
 import com.ponysdk.core.ui.basic.event.PClickEvent;
@@ -90,8 +91,7 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
     public void start(final UIContext uiContext) {
         uiContext.setClientDataOutput((object, instruction) -> System.err.println(object + " : " + instruction));
 
-        mainLabel = Element.newPLabel("Can be modified by anybody");
-        PWindow.getMain().add(mainLabel);
+        testWebSocket();
 
         if (true) return;
 
@@ -102,7 +102,6 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         downloadFile();
 
         testNewEvent();
-
         testUIDelegator();
 
         testNewGrid();
@@ -226,6 +225,41 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
         // uiContext.getHistory().newItem("", false);
     }
 
+    private void testWebSocket() {
+        // final PTWebSocket ptWebSocket = new PTWebSocket();
+        //   final URL url = new URL("ws://localhost:8084")
+        final PWebSocket pWebSocket = new PWebSocket("ws://localhost:8081/sample/chat/test");
+        final PFlowPanel panel = Element.newPFlowPanel();
+
+        final PLabel ConnectLabel = Element.newPLabel("Click here to send on ws");
+        ConnectLabel.addStyleName("red");
+        panel.setAttribute("align", "center");
+        panel.setAttribute("font-size", "15px ");
+
+        panel.add(ConnectLabel);
+        PWindow.getMain().add(panel);
+
+        ConnectLabel.addClickHandler(event -> {
+            pWebSocket.attach(PWindow.getMain());
+
+        });
+
+        final PLabel sendMsgLabel = Element.newPLabel("Click here to send message");
+        sendMsgLabel.addStyleName("green");
+        panel.add(sendMsgLabel);
+        PWindow.getMain().add(panel);
+
+        sendMsgLabel.addClickHandler(event -> {
+
+            try {
+                pWebSocket.sendMessage("hello");
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+    }
+
     private void downloadFile() {
         final PButton downloadImageButton = Element.newPButton("Download Pony image");
         downloadImageButton.addClickHandler(event -> UIContext.get().stackStreamRequest((request, response, uiContext1) -> {
@@ -331,6 +365,7 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
             this.key = key;
             this.value = value;
         }
+
     }
 
     private RefreshableDataGrid<Integer, Data> createGrid() {

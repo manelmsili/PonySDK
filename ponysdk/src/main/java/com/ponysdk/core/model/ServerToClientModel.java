@@ -227,6 +227,7 @@ public enum ServerToClientModel {
     WINDOW_LOCATION_REPLACE(ValueTypeModel.STRING),
     PRINT(ValueTypeModel.NULL),
     DESTROY(ValueTypeModel.NULL),
+    WEBSOCKET_CREATE(ValueTypeModel.STRING),
 
     // Old, useless or not used
     POPUP_GLASS_STYLE_NAME(ValueTypeModel.INTEGER),
