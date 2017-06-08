@@ -117,6 +117,7 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
 
     @Override
     public void onWebSocketError(final Throwable throwable) {
+        System.err.println("erreur webSocket");
         log.error("WebSocket Error", throwable);
     }
 
@@ -176,14 +177,6 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
         } else {
             if (log.isInfoEnabled()) log.info("UI Context is destroyed, message dropped from terminal : {}", text);
         }
-    }
-
-    /**
-     * Receive from the terminal
-     */
-    @Override
-    public void onWebSocketBinary(final byte[] payload, final int offset, final int len) {
-        // Can't receive binary data from terminal (GWT limitation)
     }
 
     public String getHistoryToken() {
@@ -292,6 +285,10 @@ public class WebSocket implements WebSocketListener, WebsocketEncoder {
             return message + " (" + statusCode + ")";
         }
 
+    }
+
+    @Override
+    public void onWebSocketBinary(final byte[] payload, final int offset, final int len) {
     }
 
 }

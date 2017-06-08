@@ -24,6 +24,9 @@
 package com.ponysdk.core.ui.basic;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import org.eclipse.jetty.websocket.api.WriteCallback;
 
 import com.ponysdk.core.model.ServerToClientModel;
 import com.ponysdk.core.model.WidgetType;
@@ -50,10 +53,7 @@ public class PWebSocket extends PObject {
     private final String url;
 
     public PWebSocket(final String url) {
-        //        final ServletUpgradeRequest request = new ServletUpgradeRequest(null);
-        //        this.webSocket = new WebSocket(request, null, null);
         this.url = url;
-        //ManagerOfPWebSocket.urlPWSMap.put(url, this);
         ManagerOfPWebSocket.get().setUrlPWSMap(this);
     }
 
@@ -63,6 +63,13 @@ public class PWebSocket extends PObject {
 
     public void sendMessage(final String message) throws IOException {
         webSocketServerChat.getSession().getRemote().sendString(message);
+    }
+
+    public void sendByteArray(final byte[] data) {
+        //TODO: initialiser la variable callback
+        final WriteCallback callback = null;
+        final ByteBuffer data1 = ByteBuffer.wrap(data);
+        webSocketServerChat.getSession().getRemote().sendBytes(data1, callback);
     }
 
     @Override

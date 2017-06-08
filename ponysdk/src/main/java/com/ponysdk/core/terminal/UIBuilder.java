@@ -190,9 +190,9 @@ public class UIBuilder {
     private void processCreate(final ReaderBuffer buffer, final int objectID) throws AvoidBlockException {
         // ServerToClientModel.WIDGET_TYPE
         final WidgetType widgetType = WIDGET_TYPES[buffer.readBinaryModel().getByteValue()];
-
         final PTObject ptObject = uiFactory.newUIObject(widgetType);
         if (ptObject != null) {
+
             ptObject.create(buffer, objectID, this);
             objectByID.put(objectID, ptObject);
         } else {

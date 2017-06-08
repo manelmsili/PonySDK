@@ -244,19 +244,25 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
 
         });
 
-        final PLabel sendMsgLabel = Element.newPLabel("Click here to send message");
+        final PLabel sendMsgLabel = Element.newPLabel("Click here to send message to the client");
         sendMsgLabel.addStyleName("green");
         panel.add(sendMsgLabel);
         PWindow.getMain().add(panel);
 
         sendMsgLabel.addClickHandler(event -> {
-
             try {
                 pWebSocket.sendMessage("hello");
             } catch (final IOException e) {
                 e.printStackTrace();
             }
         });
+
+        final PLabel sendMsgLabel2 = Element.newPLabel("Click here to send SOUND to the server");
+
+        sendMsgLabel2.addStyleName("pLabel2");
+        sendMsgLabel2.addStyleName("blue");
+        panel.add(sendMsgLabel2);
+        PWindow.getMain().add(panel);
 
     }
 

@@ -42,17 +42,83 @@ public class PTWebSocket extends AbstractPTObject {
 
     @Override
     public void create(final ReaderBuffer buffer, final int id, final UIBuilder uiBuilder) {
+
         super.create(buffer, id, uiBuilder);
 
         final BinaryModel urlModel = buffer.readBinaryModel();
         final String url = urlModel.getStringValue();
-//        final WebSocket newWebSocket = Browser.getWindow().newWebSocket(url);
-//        newWebSocket.send("gegre")
-//        /*
-//        */
         Browser.getWindow().getConsole().log(urlModel.getStringValue());
-
-
+        final WebSocket newWebSocket = Browser.getWindow().newWebSocket(url);
+        sendVoice(newWebSocket);
     }
+
+    public static native void sendMessage(WebSocket newWebSocket) /*-{
+                                                                  var el = $wnd.document.getElementsByClassName("pLabel2")[0];
+                                                                  el.addEventListener("click",sendMsg, false);
+                                                                  function sendMsg(){
+                                                                  newWebSocket.send("bonjour");
+                                                                  }
+                                                                  }-*/;
+
+    public static native void sendVoice(WebSocket newWebSocket)/*-{
+                                                               var el = $wnd.document.getElementsByClassName("pLabel2")[0];
+                                                                  el.addEventListener("click",sendSound, false);
+                                                               
+                                                                function sendSound(){
+                                                               var AudioContext = window.AudioContext || window.webkitAudioContext;
+                                                               var myAudioContext = new AudioContext();
+                                                               var BUFF_SIZE = 16384;
+                                                               MyMediaStreamSource = null,
+                                                               myGainNode = null,
+                                                               myScriptProcessor = null,
+                                                               myAnalyser = null;
+
+                                                               if (navigator.mediaDevices.getUserMedia) {
+                                                               navigator.getUserMedia({
+                                                               audio: true
+                                                               },
+                                                               function(stream) {
+                                                               start_microphone(stream);
+                                                               },
+                                                               function(e) {
+                                                               alert('Error capturing audio.');
+                                                               }
+                                                               );
+                                                               } else {
+                                                               alert('getUserMedia not supported in this browser.');
+                                                               }
+
+                                                               function start_microphone(stream) {
+                                                               var oscillator = myAudioContext.createOscillator();
+                                                               myGainNode = myAudioContext.createGain();
+
+                                                               oscillator.connect(myGainNode);
+
+                                                               myGainNode.connect(myAudioContext.destination);
+
+                                                               oscillator.channelInterpretation = 'discrete';
+
+                                                               MyMediaStreamSource = myAudioContext.createMediaStreamSource(stream);
+                                                               MyMediaStreamSource.connect(myGainNode);
+
+                                                               myScriptProcessor = myAudioContext.createScriptProcessor(BUFF_SIZE, 1, 1);
+                                                               myScriptProcessor.connect(myGainNode);
+
+                                                               MyMediaStreamSource.connect(myScriptProcessor);
+
+                                                               var myAnalyser = myAudioContext.createAnalyser();
+                                                               myAnalyser.fftSize = 2048;
+                                                               myAnalyser.smoothingTimeConstant = 0;
+
+                                                               MyMediaStreamSource.connect(myAnalyser);
+
+                                                               myScriptProcessor.onaudioprocess = function() {
+                                                               var array = new Uint8Array(myAnalyser.frequencyBinCount);
+                                                               myAnalyser.getByteFrequencyData(array);
+                                                               };
+                                                               }
+                                                                }
+                                                               
+                                                                }-*/;
 
 }

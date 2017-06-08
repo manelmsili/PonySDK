@@ -23,6 +23,7 @@
 
 package com.ponysdk.core.ui.basic;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -61,9 +62,12 @@ public class ManagerOfPWebSocket {
         urlPWSMap.put(pwebSocket.getURL(), pwebSocket);
     }
 
+    // Lors d'une connexion d'un PWS, on le récupère via son URL et on lui associe un WebServerChat
     public void onWebSocketConnectionSuccessfull(final WebSocketServerChat webSocketServerChat) {
         final PWebSocket pWebSocket = urlPWSMap.get(webSocketServerChat.getUrlAdress());
-        if (pWebSocket != null) pWebSocket.setWebSocketServerChat(webSocketServerChat);
+        if (pWebSocket != null) {
+            pWebSocket.setWebSocketServerChat(webSocketServerChat);
+        } else System.err.println("tu ne devrais pas etre là !");
     }
 
     public void onWebSocketCloseSuccessfull(final WebSocketServerChat webSocketServerChat) {
@@ -75,7 +79,15 @@ public class ManagerOfPWebSocket {
     }
 
     public void onWebSocketMessageReceived(final String message) {
-        System.err.println("Manager ; message reçu ");
+        System.err.println("Manager : message reçu " + message);
+    }
+
+    public void onWebSocketBinaryReceived(final byte[] payload, final int i, final int length) {
+        System.err.println("array : " + Arrays.toString(payload));
+
+        //  final PWebSocket pWebSocket = urlPWSMap.get(webSocketServerChat.getUrlAdress());
+        //  pWebSocket.sendByteArray(payload);
+
     }
 
 }

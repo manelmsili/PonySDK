@@ -48,13 +48,12 @@ public class WebSocketServerChat extends WebSocketAdapter {
     }
 
     public WebSocketServerChat() {
-
     }
 
     @Override
     public void onWebSocketConnect(final Session sess) {
-        System.err.println("onWebSocketConnect");
         super.onWebSocketConnect(sess);
+
         this.urlAdress = ((WebSocketSession) sess).getRequestURI().toString();
         ManagerOfPWebSocket.get().onWebSocketConnectionSuccessfull(this);
 
@@ -64,11 +63,16 @@ public class WebSocketServerChat extends WebSocketAdapter {
 
     @Override
     public void onWebSocketText(final String message) {
-        System.err.println("onWebSocketText");
         super.onWebSocketText(message);
         ManagerOfPWebSocket.get().onWebSocketMessageReceived(message);
 
         System.out.println("Received TEXT message: " + message);
+    }
+
+    @Override
+    public void onWebSocketBinary(final byte[] payload, final int offset, final int len) {
+        super.onWebSocketBinary(payload, offset, len);
+        ManagerOfPWebSocket.get().onWebSocketBinaryReceived(payload, 0, payload.length);
     }
 
     @Override
