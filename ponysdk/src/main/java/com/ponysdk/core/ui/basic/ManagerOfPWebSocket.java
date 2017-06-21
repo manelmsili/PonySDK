@@ -23,7 +23,7 @@
 
 package com.ponysdk.core.ui.basic;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -38,13 +38,10 @@ public class ManagerOfPWebSocket {
 
     private static final ManagerOfPWebSocket INSTANCE = new ManagerOfPWebSocket();
 
-    public WebSocketServerChat webSocketServerChat;
-    public static Iterator it;
     public static Map<String, PWebSocket> urlPWSMap;
 
     static {
         urlPWSMap = new HashMap<>();
-        it = urlPWSMap.entrySet().iterator();
     }
 
     private ManagerOfPWebSocket() {
@@ -82,12 +79,22 @@ public class ManagerOfPWebSocket {
         System.err.println("Manager : message reçu " + message);
     }
 
-    public void onWebSocketBinaryReceived(final byte[] payload, final int i, final int length) {
-        System.err.println("array : " + Arrays.toString(payload));
+    public void onWebSocketBinaryReceived(final byte[] payload, final int i, final int length,
+                                          final WebSocketServerChat webSocketServerChat)
+            throws IOException {
 
-        //  final PWebSocket pWebSocket = urlPWSMap.get(webSocketServerChat.getUrlAdress());
-        //  pWebSocket.sendByteArray(payload);
-
+        final PWebSocket pWebSocket = urlPWSMap.get(webSocketServerChat.getUrlAdress());
+        final Iterator it = urlPWSMap.entrySet().iterator();
+        while (it.hasNext()) {
+            final Map.Entry pair = (Map.Entry) it.next();
+            if (webSocketServerChat.getUrlAdress() != null) {
+                if (!webSocketServerChat.getUrlAdress().equals(pair.getKey())) {
+                    System.err
+                        .println(" ++ sender " + pWebSocket.getURL() + " ++ receiver " + ((PWebSocket) pair.getValue()).getURL());
+                    ((PWebSocket) pair.getValue()).sendByteArray(payload);
+                } else;
+            }
+        }
     }
 
 }

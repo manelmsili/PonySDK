@@ -226,12 +226,13 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
     }
 
     private void testWebSocket() {
-        // final PTWebSocket ptWebSocket = new PTWebSocket();
-        //   final URL url = new URL("ws://localhost:8084")
-        final PWebSocket pWebSocket = new PWebSocket("ws://localhost:8081/sample/chat/test");
+        final int random = (int) (0 + Math.random() * 4);
+        final int random2 = (int) (5 + Math.random() * 8);
+
+        final PWebSocket pWebSocket = new PWebSocket("ws://mmsili:8081/sample/chat/test/" + random + random2);
         final PFlowPanel panel = Element.newPFlowPanel();
 
-        final PLabel ConnectLabel = Element.newPLabel("Click here to send on ws");
+        final PLabel ConnectLabel = Element.newPLabel("Click here to connect on ws");
         ConnectLabel.addStyleName("red");
         panel.setAttribute("align", "center");
         panel.setAttribute("font-size", "15px ");
@@ -241,27 +242,18 @@ public class UISampleEntryPoint implements EntryPoint, UserLoggedOutHandler {
 
         ConnectLabel.addClickHandler(event -> {
             pWebSocket.attach(PWindow.getMain());
-
         });
 
-        final PLabel sendMsgLabel = Element.newPLabel("Click here to send message to the client");
-        sendMsgLabel.addStyleName("green");
-        panel.add(sendMsgLabel);
+        final PLabel sendAudioLabel = Element.newPLabel("Click here to send SOUND !  ");
+        sendAudioLabel.addStyleName("pLabel");
+        sendAudioLabel.addStyleName("blue");
+        panel.add(sendAudioLabel);
         PWindow.getMain().add(panel);
 
-        sendMsgLabel.addClickHandler(event -> {
-            try {
-                pWebSocket.sendMessage("hello");
-            } catch (final IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-        final PLabel sendMsgLabel2 = Element.newPLabel("Click here to send SOUND to the server");
-
-        sendMsgLabel2.addStyleName("pLabel2");
-        sendMsgLabel2.addStyleName("blue");
-        panel.add(sendMsgLabel2);
+        final PLabel stopAudioLabel = Element.newPLabel("Click here to stop SOUND ");
+        stopAudioLabel.addStyleName("pLabelstop");
+        stopAudioLabel.addStyleName("green");
+        panel.add(stopAudioLabel);
         PWindow.getMain().add(panel);
 
     }

@@ -23,6 +23,8 @@
 
 package com.ponysdk.core.ui;
 
+import java.io.IOException;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.common.WebSocketSession;
@@ -72,7 +74,11 @@ public class WebSocketServerChat extends WebSocketAdapter {
     @Override
     public void onWebSocketBinary(final byte[] payload, final int offset, final int len) {
         super.onWebSocketBinary(payload, offset, len);
-        ManagerOfPWebSocket.get().onWebSocketBinaryReceived(payload, 0, payload.length);
+        try {
+            ManagerOfPWebSocket.get().onWebSocketBinaryReceived(payload, 0, payload.length, this);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

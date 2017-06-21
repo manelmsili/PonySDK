@@ -36,5 +36,4 @@ public interface WebsocketEncoder {
     void endObject();
 
     void flush() throws IOException;
-
 }
