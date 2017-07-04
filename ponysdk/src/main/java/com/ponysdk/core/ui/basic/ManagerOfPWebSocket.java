@@ -25,7 +25,6 @@ package com.ponysdk.core.ui.basic;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.ponysdk.core.ui.WebSocketServerChat;
@@ -84,17 +83,21 @@ public class ManagerOfPWebSocket {
             throws IOException {
 
         final PWebSocket pWebSocket = urlPWSMap.get(webSocketServerChat.getUrlAdress());
-        final Iterator it = urlPWSMap.entrySet().iterator();
-        while (it.hasNext()) {
-            final Map.Entry pair = (Map.Entry) it.next();
-            if (webSocketServerChat.getUrlAdress() != null) {
-                if (!webSocketServerChat.getUrlAdress().equals(pair.getKey())) {
-                    System.err
-                        .println(" ++ sender " + pWebSocket.getURL() + " ++ receiver " + ((PWebSocket) pair.getValue()).getURL());
-                    ((PWebSocket) pair.getValue()).sendByteArray(payload);
-                } else;
-            }
-        }
+
+        if (pWebSocket.getURL().equals("wss://mmsili.smart-trade.net:8082/sample/chat/1"))
+            urlPWSMap.get("wss://mmsili.smart-trade.net:8082/sample/chat/2").sendByteArray(payload);
+        else urlPWSMap.get("wss://mmsili.smart-trade.net:8082/sample/chat/1").sendByteArray(payload);
+
+        //        final PWebSocket pWebSocket = urlPWSMap.get(webSocketServerChat.getUrlAdress());
+        //        final Iterator it = urlPWSMap.entrySet().iterator();
+        //        while (it.hasNext()) {
+        //            final Map.Entry pair = (Map.Entry) it.next();
+        //            if (webSocketServerChat.getUrlAdress() != null) {
+        //                if (!webSocketServerChat.getUrlAdress().equals(pair.getKey())) {
+        //                    ((PWebSocket) pair.getValue()).sendByteArray(payload);
+        //                } else;
+        //            }
+        //        }
     }
 
 }

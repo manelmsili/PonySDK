@@ -40,8 +40,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="applicationLoader" ref="applicationLoader"/>
         
         <property name="sslPort" value="8082" />
-        <property name="sslKeyStoreFile" value="keystore"/>
-        <property name="sslKeyStorePassphrase" value="strade"/>
+        <property name="sslKeyStoreFile" value="keystore.jks"/>
+        <property name="sslKeyStorePassphrase" value="changeit"/>
         <property name="useSSL" value="true"/>
     </bean>
 
