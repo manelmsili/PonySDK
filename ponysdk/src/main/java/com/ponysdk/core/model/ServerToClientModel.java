@@ -228,6 +228,7 @@ public enum ServerToClientModel {
     PRINT(ValueTypeModel.NULL),
     DESTROY(ValueTypeModel.NULL),
     WEBSOCKET_CREATE(ValueTypeModel.STRING),
+    WEBRTC_START(ValueTypeModel.NULL),
 
     // Old, useless or not used
     POPUP_GLASS_STYLE_NAME(ValueTypeModel.INTEGER),

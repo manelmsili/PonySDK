@@ -81,6 +81,7 @@ public enum WidgetType {
     HEADER_PANEL,
     SUGGESTBOX,
     MULTIWORD_SUGGEST_ORACLE,
+    RTC_CONNECTION,
     WEB_SOCKET;
 
     private WidgetType() {

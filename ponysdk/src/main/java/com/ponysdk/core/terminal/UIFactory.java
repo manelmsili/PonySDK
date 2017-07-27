@@ -62,6 +62,7 @@ import com.ponysdk.core.terminal.ui.PTObject;
 import com.ponysdk.core.terminal.ui.PTPasswordTextBox;
 import com.ponysdk.core.terminal.ui.PTPopupPanel;
 import com.ponysdk.core.terminal.ui.PTPushButton;
+import com.ponysdk.core.terminal.ui.PTRTCConnection;
 import com.ponysdk.core.terminal.ui.PTRadioButton;
 import com.ponysdk.core.terminal.ui.PTRichTextArea;
 import com.ponysdk.core.terminal.ui.PTRichTextToolbar;
@@ -205,6 +206,8 @@ class UIFactory {
                 return new PTFrame();
             case WEB_SOCKET:
                 return new PTWebSocket();
+            case RTC_CONNECTION:
+                return new PTRTCConnection();
             default:
                 log.severe("UIFactory: Client implementation not found, type : " + widgetType);
                 break;
